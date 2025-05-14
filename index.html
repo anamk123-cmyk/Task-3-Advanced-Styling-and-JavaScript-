@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Interactive Web App</title>
+  <style>
+    :root {
+      --bg-light: #f8f9fa;
+      --text-light: #333;
+      --primary-light: #6c5ce7;
+
+      --bg-dark: #121212;
+      --text-dark: #f1f1f1;
+      --primary-dark: #00cec9;
+    }
+
+    body.light {
+      background-color: var(--bg-light);
+      color: var(--text-light);
+    }
+
+    body.dark {
+      background-color: var(--bg-dark);
+      color: var(--text-dark);
+    }
+
+    body {
+      transition: background 0.3s, color 0.3s;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 20px;
+      gap: 10px;
+    }
+
+    .tab-button {
+      padding: 10px 20px;
+      border: none;
+      background-color: var(--primary-light);
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .tab-button.active {
+      background-color: #00b894;
+    }
+
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.5s ease-in;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .section {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 0 10px #ccc;
+    }
+
+    body.dark .section {
+      background: #1e1e1e;
+      box-shadow: 0 0 15px #000;
+    }
+
+    input, button {
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      background: var(--primary-light);
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .carousel img {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+      display: none;
+    }
+
+    .carousel img.active {
+      display: block;
+    }
+
+    .carousel-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: #222;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 5px;
+      border: none;
+      cursor: pointer;
+    }
+
+    @media (max-width: 768px) {
+      .tabs {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0;}
+      to {opacity: 1;}
+    }
+  </style>
+</head>
+<body class="light">
+
+  <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
+  <h1>Interactive Web App</h1>
+
+  <div class="tabs">
+    <button class="tab-button active" onclick="openTab('quiz')">Quiz</button>
+    <button class="tab-button" onclick="openTab('carousel')">Carousel</button>
+    <button class="tab-button" onclick="openTab('weather')">Weather</button>
+    <button class="tab-button" onclick="openTab('joke')">Joke Generator</button>
+  </div>
+
+  <!-- QUIZ -->
+  <div class="tab-content active" id="quiz">
+    <div class="section">
+      <h2>Simple Quiz</h2>
+      <p>1. Capital of Italy?</p>
+      <label><input type="radio" name="q1" value="Rome"> Rome</label><br>
+      <label><input type="radio" name="q1" value="Madrid"> Madrid</label><br>
+
+      <p>2. CSS is used for?</p>
+      <label><input type="radio" name="q2" value="Styling"> Styling</label><br>
+      <label><input type="radio" name="q2" value="Scripting"> Scripting</label><br>
+
+      <button onclick="checkQuiz()">Submit</button>
+      <p id="quiz-result"></p>
+    </div>
+  </div>
+
+  <!-- CAROUSEL -->
+  <div class="tab-content" id="carousel">
+    <div class="section carousel">
+      <h2>Image Carousel</h2>
+      <img src="https://picsum.photos/id/1015/600/300" class="active">
+      <img src="https://picsum.photos/id/1025/600/300">
+      <img src="https://picsum.photos/id/1035/600/300">
+      <div class="carousel-buttons">
+        <button onclick="prevImage()">❮</button>
+        <button onclick="nextImage()">❯</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEATHER -->
+  <div class="tab-content" id="weather">
+    <div class="section">
+      <h2>Weather Info</h2>
+      <input type="text" id="city" placeholder="Enter city">
+      <button onclick="getWeather()">Get Weather</button>
+      <div id="weather-result"></div>
+    </div>
+  </div>
+
+  <!-- JOKE -->
+  <div class="tab-content" id="joke">
+    <div class="section">
+      <h2>Get a Random Joke</h2>
+      <button onclick="getJoke()">Tell Me a Joke</button>
+      <p id="joke-result"></p>
+    </div>
+  </div>
+
+  <script>
+    // Theme toggle
+    function toggleTheme() {
+      const body = document.body;
+      body.classList.toggle('dark');
+      body.classList.toggle('light');
+    }
+
+    // Tab navigation
+    function openTab(tabId) {
+      document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+    }
+
+    // Quiz check
+    function checkQuiz() {
+      let score = 0;
+      const q1 = document.querySelector('input[name="q1"]:checked');
+      const q2 = document.querySelector('input[name="q2"]:checked');
+
+      if (q1?.value === 'Rome') score++;
+      if (q2?.value === 'Styling') score++;
+
+      document.getElementById("quiz-result").innerText = `You scored ${score}/2`;
+    }
+
+    // Carousel logic
+    let currentImg = 0;
+    const imgs = document.querySelectorAll(".carousel img");
+
+    function showImg(index) {
+      imgs.forEach((img, i) => img.classList.toggle('active', i === index));
+    }
+
+    function nextImage() {
+      currentImg = (currentImg + 1) % imgs.length;
+      showImg(currentImg);
+    }
+
+    function prevImage() {
+      currentImg = (currentImg - 1 + imgs.length) % imgs.length;
+      showImg(currentImg);
+    }
+
+    // Weather API
+    async function getWeather() {
+      const city = document.getElementById("city").value;
+      const result = document.getElementById("weather-result");
+      const key = "d3f59ab351807ae8fccc886a396758fb"; // Replace with your OpenWeatherMap API key
+
+      if (!city) {
+        result.innerText = "Please enter a city.";
+        return;
+      }
+
+      result.innerText = "Loading...";
+      try {
+        const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${key}&units=metric`);
+        const data = await res.json();
+
+        if (data.cod === 200) {
+          result.innerHTML = `
+            <strong>${data.name}, ${data.sys.country}</strong><br>
+            Temperature: ${data.main.temp}°C<br>
+            ${data.weather[0].description}
+          `;
+        } else {
+          result.innerText = "City not found.";
+        }
+      } catch (error) {
+        result.innerText = "Error fetching data.";
+      }
+    }
+
+    // Joke API
+    async function getJoke() {
+      const jokeBox = document.getElementById("joke-result");
+      jokeBox.innerText = "Fetching...";
+      try {
+        const res = await fetch("https://official-joke-api.appspot.com/random_joke");
+        const data = await res.json();
+        jokeBox.innerHTML = `<strong>${data.setup}</strong><br>${data.punchline}`;
+      } catch (err) {
+        jokeBox.innerText = "Error loading joke.";
+      }
+    }
+  </script>
+</body>
+</html>
